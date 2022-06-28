@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+
+	"golang.org/x/time/rate"
 )
 
 func (app *application) recoverPanic(next http.Handler) http.Handler {
@@ -13,6 +15,20 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 				app.serverErrorResponse(w, r, fmt.Errorf("%s", err))
 			}
 		}()
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) rateLimit(next http.Handler) http.Handler {
+	// allow average 2 requests per second with 4 request max in a single burst
+	limiter := rate.NewLimiter(2, 4)
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !limiter.Allow() {
+			app.rateLimitExceededResponse(w, r)
+			return
+		}
 
 		next.ServeHTTP(w, r)
 	})
