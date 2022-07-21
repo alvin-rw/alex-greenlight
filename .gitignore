@@ -1,2 +1,5 @@
 # environment variables
 .envrc
+
+# binaries
+bin/
