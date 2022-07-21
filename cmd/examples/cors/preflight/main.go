@@ -42,7 +42,7 @@ const html = `
 </html>`
 
 func main() {
-	addr := flag.String("addr", "localhost:9000", "Server address")
+	addr := flag.String("addr", ":9000", "Server address")
 	flag.Parse()
 
 	log.Printf("starting server on %s", *addr)
